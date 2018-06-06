@@ -1,0 +1,42 @@
+{
+  "name": "xobotyi/basen",
+  "description": "Text encoding utilities for PHP. Base32, Base58, Base64 and much more!",
+  "type": "library",
+  "keywords": [
+    "encoding",
+    "binary",
+    "text",
+    "RFC4648",
+    "base4",
+    "base8",
+    "base16",
+    "base32",
+    "base58",
+    "base64",
+    "base85"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/xobotyi/basen",
+  "support": {
+    "issues": "https://github.com/xobotyi/basen/issues"
+  },
+  "authors": [
+    {
+      "name": "Anton Zinovyev",
+      "email": "xog3@yandex.ru",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.5.3",
+    "codacy/coverage": "^1.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "xobotyi\\basen\\": "src"
+    }
+  }
+}
