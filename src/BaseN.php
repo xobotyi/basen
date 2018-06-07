@@ -21,6 +21,22 @@ class BaseN
     protected $radix;
 
     public function __construct(string $alphabet, bool $caseSensitive = true, bool $padFinalBits = false, bool $padFinalGroup = false, string $padCharacter = '=') {
+        $this->setCaseSensitive($caseSensitive)
+             ->setAlphabet($alphabet)
+             ->setPadCharacter($padCharacter)
+             ->setPadFinalBits($padFinalBits)
+             ->setPadFinalGroup($padFinalGroup);
+    }
+
+    public function getAlphabet() :string {
+        return $this->alphabet;
+    }
+
+    public function setAlphabet(string $alphabet) :self {
+        if ($alphabet === $this->alphabet) {
+            return $this;
+        }
+
         $alphabetLength = \strlen($alphabet);
         if ($alphabetLength < 2) {
             throw new \InvalidArgumentException('alphabet must contain at least 2 characters');
@@ -38,25 +54,63 @@ class BaseN
             throw new \InvalidArgumentException('given alphabet requires more than 8 bits peer character which is maximal');
         }
 
-        if ($padFinalGroup) {
-            # check if pad character is valid
-            if (\strlen($padCharacter) !== 1) {
-                throw new \InvalidArgumentException('pad character must be a single character string');
-            }
-
-            # and not used in alphabet
-            if (($caseSensitive ? strpos($alphabet, $padCharacter) : stripos($alphabet, $padCharacter)) !== false) {
-                throw new \InvalidArgumentException('pad character can not be a member of alphabet');
-            }
-        }
-
         $this->alphabet         = $alphabet;
         $this->bitsPerCharacter = $bitsPerCharacter;
-        $this->caseSensitive    = $caseSensitive;
-        $this->padCharacter     = $padCharacter;
-        $this->padFinalBits     = $padFinalBits;
-        $this->padFinalGroup    = $padFinalGroup;
         $this->radix            = $radix;
+
+        return $this;
+    }
+
+    public function isCaseSensitive() :bool {
+        return $this->caseSensitive;
+    }
+
+    public function setCaseSensitive(bool $caseSensitive) :self {
+        $this->caseSensitive = $caseSensitive;
+
+        return $this;
+    }
+
+    public function isPaddingFinalBits() :bool {
+        return $this->padFinalBits;
+    }
+
+    public function isPaddingFinalGroup() :bool {
+        return $this->padFinalGroup;
+    }
+
+    public function setPadFinalBits(bool $padFinalBits) :self {
+        $this->padFinalBits = $padFinalBits;
+
+        return $this;
+    }
+
+    public function setPadFinalGroup(bool $padFinalGroup) :self {
+        $this->padFinalGroup = $padFinalGroup;
+
+        return $this;
+    }
+
+    public function getPadCharacter() :string {
+        return $this->padCharacter;
+    }
+
+    public function setPadCharacter(string $padCharacter) :self {
+        if ($padCharacter === $this->padCharacter) {
+            return $this;
+        }
+
+        if (\strlen($padCharacter) !== 1) {
+            throw new \InvalidArgumentException('pad character must be a single character string');
+        }
+
+        if (($this->caseSensitive ? strpos($this->alphabet, $padCharacter) : stripos($this->alphabet, $padCharacter)) !== false) {
+            throw new \InvalidArgumentException('pad character can not be a member of alphabet');
+        }
+
+        $this->padCharacter = $padCharacter;
+
+        return $this;
     }
 
     public function encode(string $rawString) :string {
