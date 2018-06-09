@@ -7,21 +7,7 @@
 
 include_once __DIR__ . '/../vendor/autoload.php';
 
-use xobotyi\basen\BaseN;
+$new = new \xobotyi\basen\BaseN('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', false, true);
 
-$conv   = new BaseN('abcdefghijklmnopqrstuvwxyz234567', false, true, true);
-$base64 = new BaseN('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', true, true, true);
-
-var_dump($base64->decode(base64_encode('Hello world!')));
-
-$benchmark_start = microtime(true);
-for ($i = 0; $i < 10000; $i++) {
-    base64_encode('Hello world!');
-}
-echo "The script took " . (microtime(true) - $benchmark_start) . " seconds\n";
-
-$benchmark_start = microtime(true);
-for ($i = 0; $i < 10000; $i++) {
-    $base64->encode('Hello world!');
-}
-echo "The script took " . (microtime(true) - $benchmark_start) . " seconds\n";
+var_dump($new->decodeRough($new->encodeRough('f')));
+var_dump(\xobotyi\basen\Base32::encode('f'));

@@ -19,6 +19,7 @@ class BaseN
     protected $padFinalBits;
     protected $padFinalGroup;
     protected $radix;
+    protected $roughEncoding;
 
     public function __construct(string $alphabet, bool $caseSensitive = true, bool $padFinalBits = false, bool $padFinalGroup = false, string $padCharacter = '=') {
         $this->setCaseSensitive($caseSensitive)
@@ -54,9 +55,13 @@ class BaseN
             throw new \InvalidArgumentException('given alphabet requires more than 8 bits peer character which is maximal');
         }
 
+        $radix = $alphabetLength;
+
         $this->alphabet         = $alphabet;
+        $this->alphabetMap      = null;
         $this->bitsPerCharacter = $bitsPerCharacter;
         $this->radix            = $radix;
+        $this->roughEncoding    = $radix < 2 << $bitsPerCharacter - 1;
 
         return $this;
     }
@@ -124,7 +129,7 @@ class BaseN
         $byte     = \array_shift($rawBytes);
         $bitsRead = 0;
 
-        for ($c = 0; $c < $resultLength; $c++) {
+        for ($i = 0; $i < $resultLength; $i++) {
             if ($bitsRead + $this->bitsPerCharacter > 8) {
                 # not enough space for character in current byte
                 # storing remaining bits before process next byte
@@ -177,7 +182,7 @@ class BaseN
         return $result;
     }
 
-    public function decode(string $encodedString, bool $strict = true) :string {
+    public function decode(string $encodedString) :string {
         if (!$encodedString) {
             return '';
         }
@@ -197,63 +202,167 @@ class BaseN
         $byte            = 0;
         $bitsStoredCount = 0;
 
-        for ($c = 0; $c <= $lastIndex; $c++) {
+        for ($i = 0; $i <= $lastIndex; $i++) {
             # if encoding is case insensitive and character wasn't found
             # we have to try both cases
-            if (!$this->caseSensitive && !isset($this->alphabetMap[$encodedString[$c]])) {
+            if (!$this->caseSensitive && !isset($this->alphabetMap[$encodedString[$i]])) {
                 # mostly, lowercase is used so it goes first
-                if (isset($this->alphabetMap[$charLower = strtolower($encodedString[$c])])) {
+                if (isset($this->alphabetMap[$charLower = strtolower($encodedString[$i])])) {
                     # store value to avoid further case changing
-                    $this->alphabetMap[$encodedString[$c]] = $this->alphabetMap[$charLower];
+                    $this->alphabetMap[$encodedString[$i]] = $this->alphabetMap[$charLower];
                 }
-                else if (isset($this->alphabetMap[$charUpper = strtoupper($encodedString[$c])])) {
-                    $this->alphabetMap[$encodedString[$c]] = $this->alphabetMap[$charUpper];
+                else if (isset($this->alphabetMap[$charUpper = strtoupper($encodedString[$i])])) {
+                    $this->alphabetMap[$encodedString[$i]] = $this->alphabetMap[$charUpper];
                 }
             }
 
-            if (!isset($this->alphabetMap[$encodedString[$c]])) {
-                if ($strict) {
-                    throw new \InvalidArgumentException("Unable to decode string, character ${encodedString[$c]} is out of alphabet");
-                }
-                else {
-                    continue;
-                }
+            if (!isset($this->alphabetMap[$encodedString[$i]])) {
+                throw new \InvalidArgumentException("Unable to decode string, character ${encodedString[$i]} is out of alphabet");
             }
 
             $bitsRequired = 8 - $bitsStoredCount;
             $bitsLeft     = $this->bitsPerCharacter - $bitsRequired;
 
             if ($bitsRequired > $this->bitsPerCharacter) {
-                # left shift bits if they're not enough to complete byte
-                $bits            = $this->alphabetMap[$encodedString[$c]] << $bitsRequired - $this->bitsPerCharacter;
+                # left shift bits if they're not enough to complete the byte
+                $bits            = $this->alphabetMap[$encodedString[$i]] << $bitsRequired - $this->bitsPerCharacter;
                 $bitsStoredCount += $this->bitsPerCharacter;
             }
-            else if ($c !== $lastIndex || $this->padFinalBits) {
-                # right shift bits if they're too much to complete byte
-                $bits            = $this->alphabetMap[$encodedString[$c]] >> $bitsLeft;
+            else if ($i !== $lastIndex || $this->padFinalBits) {
+                # right shift bits if they're too much to complete the byte
+                $bits            = $this->alphabetMap[$encodedString[$i]] >> $bitsLeft;
                 $bitsStoredCount = 8;
             }
             else {
                 # final bits shouldn't be shifted
-                $bits            = $this->alphabetMap[$encodedString[$c]];
+                $bits            = $this->alphabetMap[$encodedString[$i]];
                 $bitsStoredCount = 8;
             }
 
             # push bits to byte
             $byte |= $bits;
 
-            if ($bitsStoredCount === 8 || $c === $lastIndex) {
+            if ($bitsStoredCount === 8 || $i === $lastIndex) {
                 # write the ready byte to string
                 $rawString .= pack('C', $byte);
 
-                if ($c !== $lastIndex) {
+                if ($i !== $lastIndex) {
                     # start the new byte
                     $bitsStoredCount = $bitsLeft;
-                    $byte            = ($this->alphabetMap[$encodedString[$c]] ^ ($bits << $bitsLeft)) << 8 - $bitsStoredCount;
+                    $byte            = ($this->alphabetMap[$encodedString[$i]] ^ ($bits << $bitsLeft)) << 8 - $bitsStoredCount;
                 }
             }
         }
 
         return $rawString;
+    }
+
+    private function divMod(array &$bytes, int $radixFrom, int $radixTo, int $start = 0) :int {
+        $size      = \count($bytes);
+        $remainder = 0;
+
+        for ($i = $start; $i < $size; $i++) {
+            $temp      = ($remainder * $radixFrom) + $bytes[$i];
+            $bytes[$i] = intdiv($temp, $radixTo);
+            $remainder = $temp % $radixTo;
+        }
+
+        return $remainder;
+    }
+
+    public function encodeRough(string $rawString) :string {
+        $encodedString = '';
+
+        $bytes = \array_values(\unpack("C*", $rawString));
+        $size  = \count($bytes);
+
+        for ($i = 0; $i < $size;) {
+            $encodedString = $this->alphabet[$this->divMod($bytes, 256, $this->radix, $i)] . $encodedString;
+
+            if ($bytes[$i] == 0) {
+                $i++;
+            }
+        }
+
+        return $encodedString;
+    }
+
+    public function decodeRough(string $encodedString) :string {
+        $rawStringBytes = [];
+
+        # prepare alphabet map if it wasn't yet
+        if (!$this->alphabetMap) {
+            $this->alphabetMap = \array_flip(\str_split($this->alphabet));
+        }
+
+        $size  = \strlen($encodedString);
+        $bytes = [];
+        for ($i = 0; $i < $size; $i++) {
+            # if encoding is case insensitive and character wasn't found
+            # we have to try both cases
+            if (!$this->caseSensitive && !isset($this->alphabetMap[$encodedString[$i]])) {
+                # mostly, lowercase is used so it goes first
+                if (isset($this->alphabetMap[$charLower = \strtolower($encodedString[$i])])) {
+                    # store value to avoid further case changing
+                    $this->alphabetMap[$encodedString[$i]] = $this->alphabetMap[$charLower];
+                }
+                else if (isset($this->alphabetMap[$charUpper = \strtoupper($encodedString[$i])])) {
+                    $this->alphabetMap[$encodedString[$i]] = $this->alphabetMap[$charUpper];
+                }
+            }
+
+            if (!isset($this->alphabetMap[$encodedString[$i]])) {
+                throw new \InvalidArgumentException("Unable to decode string, character ${encodedString[$i]} is out of alphabet");
+            }
+
+            $bytes[] = $this->alphabetMap[$encodedString[$i]];
+        }
+
+        for ($i = 0; $i < $size;) {
+            \array_unshift($rawStringBytes, $this->divMod($bytes, $this->radix, 256, $i));
+
+            if ($bytes[$i] == 0) {
+                $i++;
+            }
+        }
+
+        while ($rawStringBytes && !$rawStringBytes[0]) {
+            \array_shift($rawStringBytes);
+        }
+
+        return pack('C*', ...$rawStringBytes);
+    }
+
+    public function encodeInt(int $int) :string {
+        $encodedString = '';
+
+        while ($int >= $this->radix) {
+            $left          = $int % $this->radix;
+            $int           = ($int - $left) / $this->radix;
+            $encodedString = $this->alphabet[$left] . $encodedString;
+        };
+
+        return $this->alphabet[$int] . $encodedString;
+    }
+
+    public function decodeInt(string $encodedInt) :int {
+        if (!$this->alphabetMap) {
+            $this->alphabetMap = \array_flip(\str_split($this->alphabet));
+        }
+
+        $res  = 0;
+        $rank = $len = strlen($encodedInt) - 1;
+
+        while ($rank >= 0) {
+            $dec = $this->alphabetMap[$encodedInt[$rank]];
+
+            if ($dec) {
+                $res += pow($this->radix, $len - $rank) * $dec;
+            }
+
+            $rank--;
+        }
+
+        return (int)$res;
     }
 }
