@@ -119,6 +119,14 @@ class BaseN
     }
 
     public function encode(string $rawString) :string {
+        if (!$rawString) {
+            return '';
+        }
+
+        if ($this->roughEncoding) {
+            return $this->encodeRough($rawString);
+        }
+
         $result = '';
 
         $rawBytes = \unpack('C*', $rawString);
@@ -185,6 +193,10 @@ class BaseN
     public function decode(string $encodedString) :string {
         if (!$encodedString) {
             return '';
+        }
+
+        if ($this->roughEncoding) {
+            return $this->decodeRough($encodedString);
         }
 
         # prepare alphabet map if it wasn't yet
