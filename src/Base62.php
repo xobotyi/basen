@@ -22,6 +22,6 @@ class Base62
     private static function getBaseConverter() :BaseN {
         return self::$converter
             ? self::$converter
-            : self::$converter = new BaseN(self::ALPHABET, true, true, true);
+            : self::$converter = new BaseN(self::ALPHABET, true);
     }
 }

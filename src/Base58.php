@@ -26,6 +26,6 @@ class Base58 implements Interfaces\Encoder
     private static function getBaseConverter() :BaseN {
         return self::$converter
             ? self::$converter
-            : self::$converter = new BaseN(self::ALPHABET, true, true, false);
+            : self::$converter = new BaseN(self::ALPHABET, true);
     }
 }

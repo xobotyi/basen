@@ -1,17 +1,16 @@
 {
   "name": "xobotyi/basen",
-  "description": "Text encoding utilities for PHP. Base32, Base58, Base64 and much more!",
+  "description": "Text and integers encoding utilities for PHP with no extensions dependencies. Base32, Base58, Base64 and much more!",
   "type": "library",
   "keywords": [
     "encoding",
     "binary",
     "text",
     "RFC4648",
-    "base4",
-    "base8",
-    "base16",
     "base32",
+    "base36",
     "base58",
+    "base62",
     "base64",
     "base85"
   ],
