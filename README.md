@@ -12,9 +12,6 @@
     <a href="https://www.codacy.com/app/xobotyi/basen">
         <img alt="Codacy Grade" src="https://api.codacy.com/project/badge/Grade/4b87c746d8d14a70a1ac399c48fad64d" />
     </a>
-    <a href="https://scrutinizer-ci.com/g/xobotyi/basen/">
-        <img alt="Scrutinizer Code Quality" src="https://scrutinizer-ci.com/g/xobotyi/basen/badges/quality-score.png?b=master" />
-    </a>
     <a href="https://www.codacy.com/app/xobotyi/basen">
         <img alt="Codacy Coverage" src="https://api.codacy.com/project/badge/Coverage/4b87c746d8d14a70a1ac399c48fad64d" />
     </a>
