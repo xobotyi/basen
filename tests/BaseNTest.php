@@ -17,15 +17,15 @@ class BaseNTest extends TestCase
         $this->assertEquals('01234567', $base8->getAlphabet());
         $base8->setAlphabet('01');
         $this->assertEquals('01', $base8->setAlphabet('01')->getAlphabet());
-        $this->assertEquals('=', $base8->getPadCharacter());
-        $base8->setPadCharacter('+');
-        $this->assertEquals('+', $base8->setPadCharacter('+')->getPadCharacter());
         $this->assertEquals(false, $base8->isPaddingFinalBits());
         $this->assertEquals(true, $base8->setPadFinalBits(true)->isPaddingFinalBits());
         $this->assertEquals(false, $base8->isPaddingFinalGroup());
         $this->assertEquals(true, $base8->setPadFinalGroup(true)->isPaddingFinalGroup());
         $this->assertEquals(true, $base8->isCaseSensitive());
         $this->assertEquals(false, $base8->setCaseSensitive(false)->isCaseSensitive());
+        $this->assertEquals('=', $base8->getPadCharacter());
+        $base8->setPadCharacter('+');
+        $this->assertEquals('+', $base8->setPadCharacter('+')->getPadCharacter());
     }
 
     public function testEncoding() {
@@ -106,6 +106,13 @@ class BaseNTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('pad character can not be a member of alphabet');
 
-        (new BaseN('01234567'))->setPadCharacter('0');
+        (new BaseN('01234567', false, true, true))->setPadCharacter('0');
+    }
+
+    public function testExceptionPadCharacterFromAlphabet2() {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('pad character can not be a member of alphabet');
+
+        (new BaseN('01234567', false, true, false, '0'))->setPadFinalGroup(true);
     }
 }

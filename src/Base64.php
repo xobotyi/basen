@@ -13,6 +13,7 @@ class Base64
     public const ALPHABETS                 = [
         self::ALPHABET,
         self::ALPHABET_FREENET_URI_SAFE,
+        self::ALPHABET_REGEX_SAFE,
         self::ALPHABET_URI_SAFE,
     ];
     public const ALPHABET_FREENET_URI_SAFE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~-';

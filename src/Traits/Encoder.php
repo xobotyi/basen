@@ -11,7 +11,9 @@ use xobotyi\basen\BaseN;
 
 trait Encoder
 {
-
+    /**
+     * @var BaseN
+     */
     private static $converter;
 
     protected static function validateAlphabet(?string $alphabet = null) {
@@ -19,23 +21,23 @@ trait Encoder
             return self::ALPHABET;
         }
         else if (!in_array($alphabet, self::ALPHABETS)) {
-            throw new \InvalidArgumentException("Given alphabet is not a valid one");
+            throw new \InvalidArgumentException("Given alphabet is not supported");
         }
 
         return $alphabet;
     }
 
-    public static function encode(string $rawString, string $alphabet = null, bool $padding = true) :string {
+    public static function encode(string $rawString, string $alphabet = null, bool $padding = null) :string {
         return self::getBaseConverter()
                    ->setAlphabet(self::validateAlphabet($alphabet))
-                   ->setPadFinalGroup(!$padding)
+                   ->setPadFinalGroup($padding === null ? self::$converter->isPaddingFinalGroup() : !$padding)
                    ->encode($rawString);
     }
 
-    public static function decode(string $encodedString, string $alphabet = null) :string {
+    public static function decode(string $encodedString, string $alphabet = null, bool $padding = null) :string {
         return self::getBaseConverter()
                    ->setAlphabet(self::validateAlphabet($alphabet))
-                   ->setPadFinalGroup(true)
+                   ->setPadFinalGroup($padding === null ? self::$converter->isPaddingFinalGroup() : !$padding)
                    ->decode($encodedString);
     }
 

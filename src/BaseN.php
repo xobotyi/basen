@@ -91,7 +91,11 @@ class BaseN
     }
 
     public function setPadFinalGroup(bool $padFinalGroup) :self {
-        $this->padFinalGroup = $padFinalGroup;
+        if($this->padFinalGroup = $padFinalGroup){
+            if ($this->padFinalGroup && ($this->caseSensitive ? strpos($this->alphabet, $this->padCharacter) : stripos($this->alphabet, $this->padCharacter)) !== false) {
+                throw new \InvalidArgumentException('pad character can not be a member of alphabet');
+            }
+        }
 
         return $this;
     }
@@ -109,7 +113,7 @@ class BaseN
             throw new \InvalidArgumentException('pad character must be a single character string');
         }
 
-        if (($this->caseSensitive ? strpos($this->alphabet, $padCharacter) : stripos($this->alphabet, $padCharacter)) !== false) {
+        if ($this->padFinalGroup && ($this->caseSensitive ? strpos($this->alphabet, $padCharacter) : stripos($this->alphabet, $padCharacter)) !== false) {
             throw new \InvalidArgumentException('pad character can not be a member of alphabet');
         }
 
