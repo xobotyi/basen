@@ -28,11 +28,57 @@ class BaseNTest extends TestCase
         $this->assertEquals(false, $base8->setCaseSensitive(false)->isCaseSensitive());
     }
 
+    public function testEncoding() {
+        $base8 = new BaseN('01234567');
+
+        $this->assertEquals('142330', $base8->encode(16));
+        $this->assertEquals(16, $base8->decode('142330'));
+        $this->assertEquals('', $base8->encode(''));
+        $this->assertEquals('', $base8->decode(''));
+
+        $base64 = new BaseN('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/', true, true, true);
+
+        $this->assertEquals('YQ==', $base64->encode('a'));
+        $this->assertEquals('a', $base64->decode('YQ=='));
+
+        $base16 = new BaseN('0123456789abcdef', false, true, true);
+
+        $this->assertEquals('48656c6c6f20776f726c6421', $base16->encode('Hello world!'));
+        $this->assertEquals('Hello world!', $base16->decode('48656C6C6F20776F726C6421'));
+        $base16->setAlphabet('0123456789ABCDEF');
+        $this->assertEquals('Hello world!', $base16->decode('48656c6c6f20776f726c6421'));
+    }
+
     public function testIntegers() {
         $base8 = new BaseN('01234567');
 
         $this->assertEquals('20', $base8->encodeInt(16));
         $this->assertEquals(16, $base8->decodeInt('20'));
+    }
+
+    public function testRoughEncodings() {
+        $base8 = new BaseN('abcdefghijk', false);
+
+        $this->assertEquals('bhiiiakgkgabgbfikigbdbiegbke', $base8->encode('Hello world!'));
+        $this->assertEquals('Hello world!', $base8->decode('BHIIIAKGKGABGBFIKIGBDBIEGBKE'));
+        $base8->setAlphabet('ABCDEFGHIJK');
+        $this->assertEquals('Hello world!', $base8->decode('bhiiiakgkgabgbfikigbdbiegbke'));
+    }
+
+    public function testExceptionUnknownCharacter() {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unable to decode string, character 8 is out of alphabet");
+
+        $base8 = new BaseN('01234567', false);
+        $base8->decode('8');
+    }
+
+    public function testExceptionUnknownCharacterRough() {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unable to decode string, character 0 is out of alphabet");
+
+        $base8 = new BaseN('abcdefghijk', false);
+        $base8->decode('0123');
     }
 
     public function testExceptionTooSmallAlphabet() {
