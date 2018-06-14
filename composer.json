@@ -11,8 +11,7 @@
     "base36",
     "base58",
     "base62",
-    "base64",
-    "base85"
+    "base64"
   ],
   "license": "MIT",
   "homepage": "https://github.com/xobotyi/basen",

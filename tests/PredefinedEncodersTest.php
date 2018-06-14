@@ -59,9 +59,4 @@ class PredefinedEncodersTest extends TestCase
         $this->assertEquals('SGVsbG8gd29ybGQh', Base64::encode('Hello world!', Base64::ALPHABET_REGEX_SAFE));
         $this->assertEquals('Hello world!', Base64::decode('SGVsbG8gd29ybGQh', Base64::ALPHABET_REGEX_SAFE));
     }
-
-    public function testBase85() {
-        $this->assertEquals('6e-8Mi9*1%oPeX-', Base85::encode('Hello world!'));
-        $this->assertEquals('Hello world!', Base85::decode('6e-8Mi9*1%oPeX-'));
-    }
 }
