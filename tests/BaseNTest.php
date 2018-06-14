@@ -14,18 +14,25 @@ class BaseNTest extends TestCase
     public function testCommonMethods() {
         $base8 = new BaseN('01234567');
 
-        self::assertEquals('01234567', $base8->getAlphabet());
+        $this->assertEquals('01234567', $base8->getAlphabet());
         $base8->setAlphabet('01');
-        self::assertEquals('01', $base8->setAlphabet('01')->getAlphabet());
-        self::assertEquals('=', $base8->getPadCharacter());
+        $this->assertEquals('01', $base8->setAlphabet('01')->getAlphabet());
+        $this->assertEquals('=', $base8->getPadCharacter());
         $base8->setPadCharacter('+');
-        self::assertEquals('+', $base8->setPadCharacter('+')->getPadCharacter());
-        self::assertEquals(false, $base8->isPaddingFinalBits());
-        self::assertEquals(true, $base8->setPadFinalBits(true)->isPaddingFinalBits());
-        self::assertEquals(false, $base8->isPaddingFinalGroup());
-        self::assertEquals(true, $base8->setPadFinalGroup(true)->isPaddingFinalGroup());
-        self::assertEquals(false, $base8->isCaseSensitive());
-        self::assertEquals(true, $base8->setCaseSensitive(true)->isCaseSensitive());
+        $this->assertEquals('+', $base8->setPadCharacter('+')->getPadCharacter());
+        $this->assertEquals(false, $base8->isPaddingFinalBits());
+        $this->assertEquals(true, $base8->setPadFinalBits(true)->isPaddingFinalBits());
+        $this->assertEquals(false, $base8->isPaddingFinalGroup());
+        $this->assertEquals(true, $base8->setPadFinalGroup(true)->isPaddingFinalGroup());
+        $this->assertEquals(true, $base8->isCaseSensitive());
+        $this->assertEquals(false, $base8->setCaseSensitive(false)->isCaseSensitive());
+    }
+
+    public function testIntegers() {
+        $base8 = new BaseN('01234567');
+
+        $this->assertEquals('20', $base8->encodeInt(16));
+        $this->assertEquals(16, $base8->decodeInt('20'));
     }
 
     public function testExceptionTooSmallAlphabet() {
