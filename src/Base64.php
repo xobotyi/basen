@@ -26,9 +26,6 @@ class Base64
         $alphabet = self::validateAlphabet($alphabet);
 
         switch ($alphabet) {
-            case self::ALPHABET:
-                return \base64_encode($rawString);
-
             case self::ALPHABET_URI_SAFE:
                 return \str_replace('+', '-',
                                     \str_replace('/', '_',
@@ -46,21 +43,16 @@ class Base64
                                     \str_replace('/', '-',
                                                  \str_replace('=', '',
                                                               \base64_encode($rawString))));
-        }
 
-        return self::getBaseConverter()
-                   ->setAlphabet(self::validateAlphabet($alphabet))
-                   ->setPadFinalGroup(true)
-                   ->encode($rawString);
+            default:
+                return \base64_encode($rawString);
+        }
     }
 
     public static function decode(string $encodedString, string $alphabet = null) :string {
         $alphabet = self::validateAlphabet($alphabet);
 
         switch ($alphabet) {
-            case self::ALPHABET:
-                return \base64_decode($encodedString);
-
             case self::ALPHABET_URI_SAFE:
                 return \base64_decode(\str_replace('-', '+',
                                                    \str_replace('_', '/', $encodedString)));
@@ -74,17 +66,8 @@ class Base64
                 return \base64_decode(\str_replace('!', '+',
                                                    \str_replace('-', '/',
                                                                 $encodedString)));
+            default:
+                return \base64_decode($encodedString);
         }
-
-        return self::getBaseConverter()
-                   ->setAlphabet(self::validateAlphabet($alphabet))
-                   ->setPadFinalGroup(true)
-                   ->decode($encodedString);
-    }
-
-    private static function getBaseConverter() :BaseN {
-        return self::$converter
-            ? self::$converter
-            : self::$converter = new BaseN(self::ALPHABET, true, true, true);
     }
 }
