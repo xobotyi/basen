@@ -8,6 +8,7 @@
 namespace xobotyi\basen;
 
 use PHPUnit\Framework\TestCase;
+use xobotyi\basen\Traits\Encoder;
 
 class PredefinedEncodersTest extends TestCase
 {
@@ -16,6 +17,17 @@ class PredefinedEncodersTest extends TestCase
         $this->expectExceptionMessage("Given alphabet is not supported");
 
         Base16::encodeInt(16, Base32::ALPHABET);
+    }
+
+    public function testTrait() {
+        $a = new class
+        {
+            const ALPHABET = '0123';
+            use Encoder;
+        };
+
+        self::assertEquals(3, $a::encodeInt(3));
+        self::assertEquals(13, $a::encodeInt(7));
     }
 
     public function testBase16() {
