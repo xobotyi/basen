@@ -27,25 +27,25 @@ class Base64
 
         switch ($alphabet) {
             case self::ALPHABET_URI_SAFE:
-                return \str_replace('+', '-',
-                                    \str_replace('/', '_',
-                                                 \str_replace('=', '',
-                                                              \base64_encode($rawString))));
+                return str_replace('+', '-',
+                                    str_replace('/', '_',
+                                                 str_replace('=', '',
+                                                              base64_encode($rawString))));
 
             case self::ALPHABET_FREENET_URI_SAFE:
-                return \str_replace('+', '~',
-                                    \str_replace('/', '-',
-                                                 \str_replace('=', '',
-                                                              \base64_encode($rawString))));
+                return str_replace('+', '~',
+                                    str_replace('/', '-',
+                                                 str_replace('=', '',
+                                                              base64_encode($rawString))));
 
             case self::ALPHABET_REGEX_SAFE:
-                return \str_replace('+', '!',
-                                    \str_replace('/', '-',
-                                                 \str_replace('=', '',
-                                                              \base64_encode($rawString))));
+                return str_replace('+', '!',
+                                    str_replace('/', '-',
+                                                 str_replace('=', '',
+                                                              base64_encode($rawString))));
 
             default:
-                return \base64_encode($rawString);
+                return base64_encode($rawString);
         }
     }
 
@@ -54,20 +54,20 @@ class Base64
 
         switch ($alphabet) {
             case self::ALPHABET_URI_SAFE:
-                return \base64_decode(\str_replace('-', '+',
-                                                   \str_replace('_', '/', $encodedString)));
+                return base64_decode(str_replace('-', '+',
+                                                   str_replace('_', '/', $encodedString)));
 
             case self::ALPHABET_FREENET_URI_SAFE:
-                return \base64_decode(\str_replace('~', '+',
-                                                   \str_replace('-', '/',
+                return base64_decode(str_replace('~', '+',
+                                                   str_replace('-', '/',
                                                                 $encodedString)));
 
             case self::ALPHABET_REGEX_SAFE:
-                return \base64_decode(\str_replace('!', '+',
-                                                   \str_replace('-', '/',
+                return base64_decode(str_replace('!', '+',
+                                                   str_replace('-', '/',
                                                                 $encodedString)));
             default:
-                return \base64_decode($encodedString);
+                return base64_decode($encodedString);
         }
     }
 }
