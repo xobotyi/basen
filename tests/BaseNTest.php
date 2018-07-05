@@ -17,30 +17,34 @@ class BaseNTest extends TestCase
         $this->assertEquals('01234567', $base8->getAlphabet());
         $base8->setAlphabet('01');
         $this->assertEquals('01', $base8->setAlphabet('01')->getAlphabet());
-        $this->assertEquals(false, $base8->isPaddingFinalBits());
-        $this->assertEquals(true, $base8->setPadFinalBits(true)->isPaddingFinalBits());
-        $this->assertEquals(false, $base8->isPaddingFinalGroup());
-        $this->assertEquals(true, $base8->setPadFinalGroup(true)->isPaddingFinalGroup());
-        $this->assertEquals(true, $base8->isCaseSensitive());
-        $this->assertEquals(false, $base8->setCaseSensitive(false)->isCaseSensitive());
+        $this->assertFalse($base8->isPaddingFinalBits());
+        $this->assertTrue($base8->setPadFinalBits(true)->isPaddingFinalBits());
+        $this->assertFalse($base8->isPaddingFinalGroup());
+        $this->assertTrue($base8->setPadFinalGroup(true)->isPaddingFinalGroup());
+        $this->assertTrue($base8->isCaseSensitive());
+        $this->assertFalse($base8->setCaseSensitive(false)->isCaseSensitive());
         $this->assertEquals('=', $base8->getPadCharacter());
         $base8->setPadCharacter('+');
         $this->assertEquals('+', $base8->setPadCharacter('+')->getPadCharacter());
     }
 
-    public function testEncoding() {
+    public function testBase8Encoding() {
         $base8 = new BaseN('01234567');
 
         $this->assertEquals('142330', $base8->encode(16));
         $this->assertEquals(16, $base8->decode('142330'));
         $this->assertEquals('', $base8->encode(''));
         $this->assertEquals('', $base8->decode(''));
+    }
 
+    public function testBase64Encoding() {
         $base64 = new BaseN('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/', true, true, true);
 
         $this->assertEquals('YQ==', $base64->encode('a'));
         $this->assertEquals('a', $base64->decode('YQ=='));
+    }
 
+    public function testBase16Encoding() {
         $base16 = new BaseN('0123456789abcdef', false, true, true);
 
         $this->assertEquals('48656c6c6f20776f726c6421', $base16->encode('Hello world!'));

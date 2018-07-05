@@ -26,8 +26,8 @@ class PredefinedEncodersTest extends TestCase
             use Encoder;
         };
 
-        self::assertEquals(3, $a::encodeInt(3));
-        self::assertEquals(13, $a::encodeInt(7));
+        $this->assertEquals(3, $a::encodeInt(3));
+        $this->assertEquals(13, $a::encodeInt(7));
     }
 
     public function testBase16() {
