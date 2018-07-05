@@ -38,7 +38,7 @@ class BaseN
             return $this;
         }
 
-        $alphabetLength = \strlen($alphabet);
+        $alphabetLength = strlen($alphabet);
         if ($alphabetLength < 2) {
             throw new \InvalidArgumentException('alphabet must contain at least 2 characters');
         }
@@ -109,7 +109,7 @@ class BaseN
             return $this;
         }
 
-        if (\strlen($padCharacter) !== 1) {
+        if (strlen($padCharacter) !== 1) {
             throw new \InvalidArgumentException('pad character must be a single character string');
         }
 
@@ -133,12 +133,12 @@ class BaseN
 
         $result = '';
 
-        $rawBytes = \unpack('C*', $rawString);
+        $rawBytes = unpack('C*', $rawString);
 
         $charsPerByte = 8 / $this->bitsPerCharacter;
-        $resultLength = \count($rawBytes) * $charsPerByte;
+        $resultLength = count($rawBytes) * $charsPerByte;
 
-        $byte     = \array_shift($rawBytes);
+        $byte     = array_shift($rawBytes);
         $bitsRead = 0;
 
         for ($i = 0; $i < $resultLength; $i++) {
@@ -159,8 +159,8 @@ class BaseN
                     $result .= $this->alphabet[$overflowBits];
 
                     if ($this->padFinalGroup) {
-                        $pads   = self::LCM[$this->bitsPerCharacter] * $charsPerByte - \ceil(\strlen($rawString) % self::LCM[$this->bitsPerCharacter] * $charsPerByte);
-                        $result .= \str_repeat($this->padCharacter, $pads);
+                        $pads   = self::LCM[$this->bitsPerCharacter] * $charsPerByte - ceil(strlen($rawString) % self::LCM[$this->bitsPerCharacter] * $charsPerByte);
+                        $result .= str_repeat($this->padCharacter, $pads);
                     }
 
                     # everything padded, exiting the loop
@@ -168,7 +168,7 @@ class BaseN
                 }
 
                 # get nex byte
-                $byte     = \array_shift($rawBytes);
+                $byte     = array_shift($rawBytes);
                 $bitsRead = 0;
             }
             else {
@@ -205,15 +205,15 @@ class BaseN
 
         # prepare alphabet map if it wasn't yet
         if (!$this->alphabetMap) {
-            $this->alphabetMap = \array_flip(\str_split($this->alphabet));
+            $this->alphabetMap = array_flip(str_split($this->alphabet));
         }
 
         # remove padding characters
         if ($this->padFinalGroup) {
-            $encodedString = \rtrim($encodedString, $this->padCharacter);
+            $encodedString = rtrim($encodedString, $this->padCharacter);
         }
 
-        $lastIndex       = \strlen($encodedString) - 1;
+        $lastIndex       = strlen($encodedString) - 1;
         $rawString       = '';
         $byte            = 0;
         $bitsStoredCount = 0;
@@ -274,7 +274,7 @@ class BaseN
     }
 
     private function divMod(array &$bytes, int $radixFrom, int $radixTo, int $start = 0) :int {
-        $size      = \count($bytes);
+        $size      = count($bytes);
         $remainder = 0;
 
         for ($i = $start; $i < $size; $i++) {
@@ -289,8 +289,8 @@ class BaseN
     public function encodeRough(string $rawString) :string {
         $encodedString = '';
 
-        $bytes = \array_values(\unpack("C*", $rawString));
-        $size  = \count($bytes);
+        $bytes = array_values(unpack("C*", $rawString));
+        $size  = count($bytes);
 
         for ($i = 0; $i < $size;) {
             $encodedString = $this->alphabet[$this->divMod($bytes, 256, $this->radix, $i)] . $encodedString;
@@ -308,21 +308,21 @@ class BaseN
 
         # prepare alphabet map if it wasn't yet
         if (!$this->alphabetMap) {
-            $this->alphabetMap = \array_flip(\str_split($this->alphabet));
+            $this->alphabetMap = array_flip(str_split($this->alphabet));
         }
 
-        $size  = \strlen($encodedString);
+        $size  = strlen($encodedString);
         $bytes = [];
         for ($i = 0; $i < $size; $i++) {
             # if encoding is case insensitive and character wasn't found
             # we have to try both cases
             if (!$this->caseSensitive && !isset($this->alphabetMap[$encodedString[$i]])) {
                 # mostly, lowercase is used so it goes first
-                if (isset($this->alphabetMap[$charLower = \strtolower($encodedString[$i])])) {
+                if (isset($this->alphabetMap[$charLower = strtolower($encodedString[$i])])) {
                     # store value to avoid further case changing
                     $this->alphabetMap[$encodedString[$i]] = $this->alphabetMap[$charLower];
                 }
-                else if (isset($this->alphabetMap[$charUpper = \strtoupper($encodedString[$i])])) {
+                else if (isset($this->alphabetMap[$charUpper = strtoupper($encodedString[$i])])) {
                     $this->alphabetMap[$encodedString[$i]] = $this->alphabetMap[$charUpper];
                 }
             }
@@ -335,7 +335,7 @@ class BaseN
         }
 
         for ($i = 0; $i < $size;) {
-            \array_unshift($rawStringBytes, $this->divMod($bytes, $this->radix, 256, $i));
+            array_unshift($rawStringBytes, $this->divMod($bytes, $this->radix, 256, $i));
 
             if ($bytes[$i] == 0) {
                 $i++;
@@ -343,7 +343,7 @@ class BaseN
         }
 
         while ($rawStringBytes && !$rawStringBytes[0]) {
-            \array_shift($rawStringBytes);
+            array_shift($rawStringBytes);
         }
 
         return pack('C*', ...$rawStringBytes);
@@ -363,7 +363,7 @@ class BaseN
 
     public function decodeInt(string $encodedInt) :int {
         if (!$this->alphabetMap) {
-            $this->alphabetMap = \array_flip(\str_split($this->alphabet));
+            $this->alphabetMap = array_flip(str_split($this->alphabet));
         }
 
         $res  = 0;
