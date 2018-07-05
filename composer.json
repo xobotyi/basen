@@ -37,5 +37,10 @@
     "psr-4": {
       "xobotyi\\basen\\": "src"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "xobotyi\\basen\\": "tests"
+    }
   }
 }
